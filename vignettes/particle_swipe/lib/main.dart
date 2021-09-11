@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:particle_swipe/components/particle_app_bar.dart';
 import 'package:shared/env.dart';
 
-import 'components/colored_safe_area.dart';
 import 'demo.dart';
 
 void main() => runApp(App());
@@ -25,7 +24,9 @@ class App extends StatelessWidget {
         appBarTheme: AppBarTheme(brightness: Brightness.dark),
         canvasColor: Color(0xFF161719),
         accentColor: Color(0xffc932d9),
-        textTheme: Theme.of(context).textTheme.apply(bodyColor: Colors.white, fontFamily: 'OpenSans'),
+        textTheme: Theme.of(context)
+            .textTheme
+            .apply(bodyColor: Colors.white, fontFamily: 'OpenSans'),
         iconTheme: Theme.of(context).iconTheme.copyWith(color: Colors.white),
       ),
       home: Scaffold(

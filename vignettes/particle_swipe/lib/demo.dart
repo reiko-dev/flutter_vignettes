@@ -23,7 +23,8 @@ class ParticleSwipeDemo extends StatefulWidget {
   }
 }
 
-class ParticleSwipeDemoState extends State<ParticleSwipeDemo> with SingleTickerProviderStateMixin {
+class ParticleSwipeDemoState extends State<ParticleSwipeDemo>
+    with SingleTickerProviderStateMixin {
   //static const double headerHeight = 80;
   GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   ListModel _model;
@@ -31,21 +32,33 @@ class ParticleSwipeDemoState extends State<ParticleSwipeDemo> with SingleTickerP
   ParticleField _particleField;
   Ticker _ticker;
 
+  final GlobalKey key = GlobalKey();
+
   @override
   void initState() {
     // Create the "sparkle" sprite sheet for the particles:
     _spriteSheet = SpriteSheet(
-      imageProvider: AssetImage("images/circle_spritesheet.png", package: App.pkg),
+      imageProvider:
+          AssetImage("images/circle_spritesheet.png", package: App.pkg),
       length: 15, // number of frames in the sprite sheet.
       frameWidth: 10,
       frameHeight: 10,
     );
+    // _spriteSheet = SpriteSheet(
+    //   imageProvider:
+    //       AssetImage("images/spritesheet_sparkle.png", package: App.pkg),
+    //   length: 13, // number of frames in the sprite sheet.
+    //   frameWidth: 10,
+    //   frameHeight: 10,
+    // );
 
     // This synchronizes the data with the animated list:
     _model = ListModel(
       initialItems: widget.data,
-      listKey: _listKey, // ListModel uses this to look up the list its acting on.
-      removedItemBuilder: (dynamic removedItem, BuildContext context, Animation<double> animation) =>
+      listKey:
+          _listKey, // ListModel uses this to look up the list its acting on.
+      removedItemBuilder: (dynamic removedItem, BuildContext context,
+              Animation<double> animation) =>
           RemovedSwipeItem(animation: animation),
     );
 
@@ -62,15 +75,20 @@ class ParticleSwipeDemoState extends State<ParticleSwipeDemo> with SingleTickerP
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
     // Draw the header and List UI with a ParticleFieldPainter layered over top:
-    return Stack(children: <Widget>[
-      _buildList(),
-      Positioned.fill(
+    return Stack(
+      alignment: Alignment.center,
+      children: <Widget>[
+        _buildList(),
+        Positioned.fill(
           child: IgnorePointer(
-        child: CustomPaint(painter: ParticleFieldPainter(field: _particleField, spriteSheet: _spriteSheet)),
-      )),
-    ]);
+            child: CustomPaint(
+                painter: ParticleFieldPainter(
+                    field: _particleField, spriteSheet: _spriteSheet)),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildList() {
@@ -80,7 +98,10 @@ class ParticleSwipeDemoState extends State<ParticleSwipeDemo> with SingleTickerP
       physics: ClampingScrollPhysics(),
       itemBuilder: (BuildContext context, int index, _) {
         var item = _model[index];
-        return SwipeItem(data: item, isEven: index.isEven, onSwipe: (key, {action}) => _performSwipeAction(item, key, action));
+        return SwipeItem(
+            data: item,
+            isEven: index.isEven,
+            onSwipe: (key, {action}) => _performSwipeAction(item, key, action));
       },
     );
   }
@@ -88,18 +109,26 @@ class ParticleSwipeDemoState extends State<ParticleSwipeDemo> with SingleTickerP
   void _performSwipeAction(Email data, GlobalKey key, SwipeAction action) {
     // Get item's render box, and use it to calculate the position for the particle effect:
     final RenderBox box = key.currentContext.findRenderObject();
-    Offset position = box.localToGlobal(Offset.zero, ancestor: context.findRenderObject());
+    Offset position =
+        box.localToGlobal(Offset.zero, ancestor: context.findRenderObject());
     double x = position.dx;
     double y = position.dy;
     double w = box.size.width;
 
     if (action == SwipeAction.remove) {
       // Delay the start of the effect a little bit, so the item is mostly closed before it begins.
-      Future.delayed(Duration(milliseconds: 100)).then((_) => _particleField.lineExplosion(x, y, w));
+      // Future.delayed(Duration(milliseconds: 50)).then((_) {
+      //   // _particleField.lineExplosion(x, y, w);
+      // });
+      _particleField.rectanglePerimeterExplosion(
+        position & box.size,
+        color: Colors.red,
+      );
 
       // Remove the item (using the ItemModel to sync everything), and redraw the UI (to update count):
       setState(() {
-        _model.removeAt(_model.indexOf(data), duration: Duration(milliseconds: 200));
+        _model.removeAt(_model.indexOf(data),
+            duration: Duration(milliseconds: 200));
         widget.data.remove(data);
       });
     }
